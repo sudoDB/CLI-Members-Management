@@ -18,11 +18,23 @@ using namespace std;
 #define MAGENTA "\033[35m"      /* Magenta */
 
 
+
+bool file_exists(const path& p, file_status s = file_status{})
+{
+    std::cout << p;
+    if(status_known(s) ? exists(s) : exists(p))
+        return true;
+    else
+        return false;
+}
+
+
 void displaymenu()
 { 
     cout<< MAGENTA <<"===================================================== \n";
     cout<<" \t\tMembers manager\n";
     cout<<"===================================================== \n" << RESET;
+    cout<<" 0." << RED <<" Quit" << RESET << "\n";
     cout<<" 1." << RED <<" Delete" << RESET << " a member\n";
     cout<<"\n";
     cout<<" 2." << GREEN << " Add" << RESET << " a member\n";
@@ -36,10 +48,14 @@ void displaymenu()
 void addMember()
 {
     cout<< "\nyou have selected add member\n";
-    //Take input
+    //Take inputs
     cout << "\nName: ";
     string memberName;
     cin >> memberName;
+
+    cout << "\nAnniversary: ";
+    string memberAnniv;
+    cin >> memberAnniv;
 
     // Prepare file
     ofstream newfile;
@@ -49,7 +65,7 @@ void addMember()
     // Create file
     newfile.open(fileDestination.str());
     // Write
-    newfile << memberName <<"\n";
+    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: 0";
     newfile.close();
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
@@ -72,10 +88,7 @@ void deleteMember()
     remove(fileDestination.str());
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
-void updateMember()
-{
-    cout<< "\nyou have selected update member 3\n";
-}
+
 void ViewAllMembers()
 {
     cout<< "\nView all member records\n";
@@ -84,6 +97,51 @@ void ViewAllMembers()
     for (const auto & entry : directory_iterator(path)){
         cout << YELLOW << entry.path() << RESET << endl;
     }
+    cout<< MAGENTA <<"===================================================== \n" << RESET;
+}
+
+void updateMember()
+{
+    cout<< "\nyou have selected update member\n";
+
+    //Display all members
+    ViewAllMembers();
+
+    //Take member to modify
+    cout << "\nType the member name to modify: ";
+    string memberName;
+    cin >> memberName;
+    ostringstream fileDestination;
+    fileDestination << "./members/" << memberName << ".txt";
+    if(file_exists(fileDestination.str())){
+        // Delete file
+        remove(fileDestination.str());
+    }else{
+        // Retry
+        cout << "\nMember does not exist\n";
+        system("clear");
+        updateMember();
+    }
+
+
+    //Take inputs
+    cout << "\nName: ";
+    cin >> memberName;
+
+    cout << "\nAnniversary: ";
+    string memberAnniv;
+    cin >> memberAnniv;
+
+    // Prepare file
+    ofstream newfile;
+    // used to add string + vars
+    ostringstream nfileDestination;
+    nfileDestination << "./members/" << memberName << ".txt";
+    // Create file
+    newfile.open(nfileDestination.str());
+    // Write
+    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: 0";
+    newfile.close();
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
  
@@ -104,6 +162,7 @@ int main()
     // Switch case for each options
     switch (yourchoice)
     {
+        case 0: exit(0); break;
         case 1: deleteMember(); break;
         case 2: addMember();break;
         case 3: updateMember(); break;
