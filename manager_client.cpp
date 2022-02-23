@@ -21,11 +21,33 @@ using namespace std;
 
 bool file_exists(const path& p, file_status s = file_status{})
 {
-    std::cout << p;
+    cout << p;
     if(status_known(s) ? exists(s) : exists(p))
         return true;
     else
         return false;
+}
+
+void write_member(int points){
+    //Take inputs
+    cout << "\nName: ";
+    string memberName;
+    cin >> memberName;
+
+    cout << "\nAnniversary: ";
+    string memberAnniv;
+    cin >> memberAnniv;
+
+    // Prepare file
+    ofstream newfile;
+    // used to add string + vars
+    ostringstream fileDestination;
+    fileDestination << "./members/" << memberName << ".txt";
+    // Create file
+    newfile.open(fileDestination.str());
+    // Write
+    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: " << points;
+    newfile.close();
 }
 
 
@@ -48,25 +70,9 @@ void displaymenu()
 void addMember()
 {
     cout<< "\nyou have selected add member\n";
-    //Take inputs
-    cout << "\nName: ";
-    string memberName;
-    cin >> memberName;
 
-    cout << "\nAnniversary: ";
-    string memberAnniv;
-    cin >> memberAnniv;
-
-    // Prepare file
-    ofstream newfile;
-    // used to add string + vars
-    ostringstream fileDestination;
-    fileDestination << "./members/" << memberName << ".txt";
-    // Create file
-    newfile.open(fileDestination.str());
-    // Write
-    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: 0";
-    newfile.close();
+    write_member(0);
+    
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
 void deleteMember()
@@ -123,25 +129,8 @@ void updateMember()
         updateMember();
     }
 
+    write_member(0);
 
-    //Take inputs
-    cout << "\nName: ";
-    cin >> memberName;
-
-    cout << "\nAnniversary: ";
-    string memberAnniv;
-    cin >> memberAnniv;
-
-    // Prepare file
-    ofstream newfile;
-    // used to add string + vars
-    ostringstream nfileDestination;
-    nfileDestination << "./members/" << memberName << ".txt";
-    // Create file
-    newfile.open(nfileDestination.str());
-    // Write
-    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: 0";
-    newfile.close();
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
  
