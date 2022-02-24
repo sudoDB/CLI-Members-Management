@@ -4,6 +4,7 @@
 #include <string>
 #include <filesystem>
 #include <cstring>  
+#include <bits/stdc++.h>
 
 namespace fs = std::filesystem;
 
@@ -28,6 +29,18 @@ bool file_exists(const path& p, file_status s = file_status{})
         return false;
 }
 
+bool member_exists(string memberName){
+    string path = "./members";
+    // Loop thought folder
+    for (const auto & entry : directory_iterator(path)){
+        // If substring memeberName in the current filename string
+        if(strstr(entry.path().c_str(),memberName.c_str())){
+            return true;
+        }
+    }
+    return false;
+}
+
 void write_member(int points){
     //Take inputs
     cout << "\nName: ";
@@ -50,6 +63,16 @@ void write_member(int points){
     newfile.close();
 }
 
+void memberList(){
+    // Loop though dir
+    string path = "./members";
+    for (const auto & entry : directory_iterator(path)){
+        cout << YELLOW << entry.path() << RESET << endl;
+    }
+}
+
+
+////////////////////////////////////////////////////////////
 
 void displaymenu()
 { 
@@ -63,13 +86,16 @@ void displaymenu()
     cout<<" 3." << BLUE << " Update" << RESET << " a member\n";
     cout<<"\n";
     cout<<" 4. Show all members\n";
+    cout<<"\n";
+    cout<<" 5." << GREEN << " Add" << RESET << " point(s) to a member\n";
+    cout<<" 6." << RED << " Remove" << RESET << " point(s) to a member\n";
     cout<< MAGENTA <<"===================================================== \n" << RESET;
     cout<<"\n";
 }
 
 void addMember()
 {
-    cout<< "\nyou have selected add member\n";
+    cout<< "\nYou have selected add member\n";
 
     write_member(0);
     
@@ -77,54 +103,60 @@ void addMember()
 }
 void deleteMember()
 {
-    cout<< "\nyou have selected delete member \n";
-    // Loop though dir
-    string path = "./members";
-    for (const auto & entry : directory_iterator(path)){
-        cout << entry.path() << endl;
-    }
+    cout<< "\nYou have selected delete member \n";
+    memberList();
     // Input
-    cout << "\nType the member name to delete: ";
+    cout << "\nType the member name to delete (type /q to go back): ";
     string memberName;
     cin >> memberName;
+
+    // Check if user to exit
+    if (memberName == "/q"){return;}
+
     // Prepare a ostring for the file name
     ostringstream fileDestination;
     fileDestination << "./members/" << memberName << ".txt";
-    // Delete file
-    remove(fileDestination.str());
+    // Check if member exist
+    bool mpresent = member_exists(memberName);
+    if (mpresent){
+        remove(fileDestination.str());
+    }else{
+        cout << "No member named " << memberName << endl;
+        system("clear");
+        deleteMember();
+    }
+    
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
 
 void ViewAllMembers()
 {
-    cout<< "\nView all member records\n";
-    // Loop though dir
-    string path = "./members";
-    for (const auto & entry : directory_iterator(path)){
-        cout << YELLOW << entry.path() << RESET << endl;
-    }
+    cout<< "\nYou have selected view member(s) record(s)\n";
+    memberList();
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
 
 void updateMember()
 {
-    cout<< "\nyou have selected update member\n";
+    cout<< "\nYou have selected update member\n";
 
-    //Display all members
-    ViewAllMembers();
+    memberList();
 
     //Take member to modify
-    cout << "\nType the member name to modify: ";
+    cout << "\nType the member name to modify (type /q to go back): ";
     string memberName;
     cin >> memberName;
+
+    // Check if user to exit
+    if (memberName == "/q"){return;}
+
     ostringstream fileDestination;
     fileDestination << "./members/" << memberName << ".txt";
-    if(file_exists(fileDestination.str())){
-        // Delete file
+    bool mpresent = member_exists(memberName);
+    if (mpresent){
         remove(fileDestination.str());
     }else{
-        // Retry
-        cout << "\nMember does not exist\n";
+        cout << "No member named " << memberName << endl;
         system("clear");
         updateMember();
     }
@@ -134,8 +166,50 @@ void updateMember()
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
  
-//Code by devenum.com
- 
+void addPoint(){
+
+    cout<< "\nYou have selected add point\n";
+    memberList();
+
+    //Take member to modify
+    cout << "\nType the member name to modify (type /q to go back): ";
+    string memberName;
+    cin >> memberName;
+
+    // Check if user to exit
+    if (memberName == "/q"){return;}
+
+    bool mpresent = member_exists(memberName);
+    if (mpresent){
+        // Add Point
+    }else{
+        cout << "No member named " << memberName << endl;
+    }
+
+}
+
+void removePoint(){
+
+    cout<< "\nYou have selected remove point\n";
+    memberList();
+
+    //Take member to modify
+    cout << "\nType the member name to modify (type /q to go back): ";
+    string memberName;
+    cin >> memberName;
+
+    // Check if user to exit
+    if (memberName == "/q"){return;}
+
+    bool mpresent = member_exists(memberName);
+    if (mpresent){
+        // Remove Point
+    }else{
+        cout << "No member named " << memberName << endl;
+    }
+}
+
+///////////////////////////////////////////////////////////////// 
 int main()
 {
     string st[20];
@@ -146,7 +220,7 @@ int main()
     int yourchoice;
     string confirm;
     do
-    { cout<<"Enter your choice(1-4):";
+    { cout<<"Enter your choice(0-6):";
     cin>>yourchoice;
     // Switch case for each options
     switch (yourchoice)
@@ -156,6 +230,8 @@ int main()
         case 2: addMember();break;
         case 3: updateMember(); break;
         case 4: ViewAllMembers(); break;
+        case 5: addPoint(); break;
+        case 6: removePoint(); break;
         default: cout<<"invalid"; break;
     }
     cout<<"\nPress y or Y to continue:";
