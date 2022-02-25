@@ -41,8 +41,92 @@ bool member_exists(string memberName){
     return false;
 }
 
+int get_last_line_index(string filepath){
+    int count = 0; // To read each line from code
+    string line; // To read each line from code
+	
+	ifstream mFile (filepath);   
+	
+	if(mFile.is_open()) 
+	{
+		while(mFile.peek()!=EOF)
+		{
+			getline(mFile, line);
+			count++;
+		}
+		mFile.close();
+	}
+    return count;
+}
+
+int get_points(string filepath){
+    int ptsindex = get_last_line_index(filepath);
+    int count = 0; // To read each line from code
+    string line; // To read each line from code
+    int pts = 0;
+	
+	ifstream file;   
+    file.open(filepath);
+	
+	if(file.is_open()) 
+	{
+		while (getline(file, line))
+		{
+            if (count < ptsindex-1){
+                count++;
+            }
+            else if (count == ptsindex-1){
+                // Only modify the Points value
+                string pts_string = line.substr(line.find(" "), -1);
+                pts = stoi(pts_string);
+            }else{
+                break;
+            }
+		}
+        file.close();
+	}
+    return pts;
+}
+
+void modify_points(string filepath, int lineindex, int pts){
+    int count = 0; // To read each line from code
+    string line; // To read each line from code
+
+    string tempFileName = "temp.dat";
+    rename(filepath, tempFileName);
+	
+	ifstream oldfile;   
+    ofstream newfile;
+    oldfile.open(tempFileName);
+    newfile.open(filepath);
+	
+	if(oldfile.is_open()) 
+	{
+		while (getline(oldfile, line))
+		{
+            if (count < lineindex-1){
+                newfile << line << endl;
+                count++;
+            }
+            else if (count == lineindex-1){
+                // Only modify the Points value
+                string pts_string = line.substr(line.find(" "), -1);
+                // Add points
+                pts = stoi(pts_string) + pts;
+                // Write result
+                newfile << "Points: " << to_string(pts) << endl;
+            }else{
+                break;
+            }
+		}
+        oldfile.close();
+		remove(tempFileName);
+        newfile.close();
+	}
+}
+
 void write_member(int points){
-    //Take inputs
+    // Take inputs
     cout << "\nName: ";
     string memberName;
     cin >> memberName;
@@ -67,7 +151,7 @@ void memberList(){
     // Loop though dir
     string path = "./members";
     for (const auto & entry : directory_iterator(path)){
-        cout << YELLOW << entry.path() << RESET << endl;
+        cout << YELLOW << entry.path() << RESET << "\t" << get_points(entry.path()) << "pts" <<endl;
     }
 }
 
@@ -142,7 +226,7 @@ void updateMember()
 
     memberList();
 
-    //Take member to modify
+    // Take member to modify
     cout << "\nType the member name to modify (type /q to go back): ";
     string memberName;
     cin >> memberName;
@@ -171,17 +255,29 @@ void addPoint(){
     cout<< "\nYou have selected add point\n";
     memberList();
 
-    //Take member to modify
+    // Take member to modify
     cout << "\nType the member name to modify (type /q to go back): ";
     string memberName;
     cin >> memberName;
-
     // Check if user to exit
     if (memberName == "/q"){return;}
 
+    // If inputs are good
     bool mpresent = member_exists(memberName);
     if (mpresent){
+        // Get memebr filepath
+        string filepath = "./members/" + memberName + ".txt";
+        // Ask point(s) to add
+        cout << "Current points: " << get_points(filepath) << endl;
+        cout << "\nPoint(s) to add: ";
+        int pts;
+        cin >> pts;
+        string pts_str = to_string(pts);
         // Add Point
+        int lastline = get_last_line_index(filepath);
+        modify_points(filepath, lastline, pts);
+        cout << "New points: " << get_points(filepath) << endl;
+
     }else{
         cout << "No member named " << memberName << endl;
     }
@@ -203,7 +299,19 @@ void removePoint(){
 
     bool mpresent = member_exists(memberName);
     if (mpresent){
-        // Remove Point
+        // Get memebr filepath
+        string filepath = "./members/" + memberName + ".txt";
+        // Ask point(s) to remove
+        cout << "Current points: " << get_points(filepath) << endl;
+        cout << "\nPoint(s) to remove: ";
+        int pts;
+        cin >> pts;
+        string pts_str = to_string(pts);
+        // Remove Point (same as above, its just -pts instead of pts)
+        int lastline = get_last_line_index(filepath);
+        modify_points(filepath, lastline, -pts);
+        cout << "New points: " << get_points(filepath) << endl;
+
     }else{
         cout << "No member named " << memberName << endl;
     }
