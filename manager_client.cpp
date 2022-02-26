@@ -143,7 +143,7 @@ void write_member(int points){
     // Create file
     newfile.open(fileDestination.str());
     // Write
-    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: " << points;
+    newfile << memberName <<"\n" << memberAnniv << "\n" << "Points: " << to_string(points);
     newfile.close();
 }
 
@@ -231,6 +231,8 @@ void updateMember()
     string memberName;
     cin >> memberName;
 
+    int tracked_pts = 0;
+
     // Check if user to exit
     if (memberName == "/q"){return;}
 
@@ -238,6 +240,7 @@ void updateMember()
     fileDestination << "./members/" << memberName << ".txt";
     bool mpresent = member_exists(memberName);
     if (mpresent){
+        tracked_pts = get_points(fileDestination.str());
         remove(fileDestination.str());
     }else{
         cout << "No member named " << memberName << endl;
@@ -245,7 +248,7 @@ void updateMember()
         updateMember();
     }
 
-    write_member(0);
+    write_member(tracked_pts);
 
     cout<< MAGENTA <<"===================================================== \n" << RESET;
 }
